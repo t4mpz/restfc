@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "path": "",
+    "name": "",
+    "version": "",
+    "uuid": "",
+    "lastEnv": ""
+  },
+  "auth": {
+    "type": [
+        "apikey",
+        "awsv4",
+        "basic",
+        "bearer",
+        "edgegrid",
+        "hawk",
+        "noauth"
+    ],
+    "user?": "",
+    "password?": "",
+    "key?": ""
+  },
+  "certificates": {
+    "path": "",
+    "vhost": 0,
+    "vpeer": 0,
+    "vstatus": 0,
+    "password": "",
+    "key": ""
+  },
+  "cookies": [
+    {
+      "name": "",
+      "age": "",
+      "secure": false,
+      "value": "",
+      "path": "",
+      "subdomains": false
+    }
+  ],
+  "vars": [
+    {"k": "", "v":"", "e": true}
+  ],
+  "url": "",
+  "body": "&{}, #{}, ${}, @{https://|uuid}.body.f.i.j",
+  "btype": [
+    "json",
+    "xml",
+    "text",
+    "blob"
+  ],
+  "headers": [{"k": "", "v":"", "e": true}],
+  "notes": "",
+  "method": [
+    "POST",
+    "GET",
+    "DELETE",
+    "PUT",
+    "OPTIONS",
+    "PATCH"
+  ]
+}

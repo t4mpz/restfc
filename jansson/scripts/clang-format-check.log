@@ -1,0 +1,2 @@
+fatal: not a git repository (or any of the parent directories): .git
+PASS scripts/clang-format-check (exit status: 0)

@@ -1,0 +1,25 @@
+======================================
+   jansson 2.15.1: ./test-suite.log
+======================================
+
+# TOTAL: 1
+# PASS:  1
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+
+System information (uname -a): Linux 7.2.11-arch1-1 #1 SMP PREEMPT_DYNAMIC Fri, 16 Oct 2026 00:28:58 +0000 x86_64
+Distribution information (/etc/os-release):
+NAME="EndeavourOS"
+PRETTY_NAME="EndeavourOS"
+ID="endeavouros"
+ID_LIKE="arch"
+BUILD_ID="2024.09.22"
+ANSI_COLOR="38;2;23;147;209"
+HOME_URL="https://endeavouros.com"
+DOCUMENTATION_URL="https://discovery.endeavouros.com"
+
+.. contents:: :depth: 2
+
