@@ -21,7 +21,8 @@
 typedef struct {
   int* items;
   size_t size;
-} sizedI;
+} 
+sizedI;
 
 
 /**
@@ -58,8 +59,14 @@ intercept_vars_to_str(const char* str, const char* del) {
   };
 }
 
-static 
-extract_var_key(const char*
+static char*
+extract_var_key(const char* haystack, const char* finalDelimiter) {
+  char* fdStr = strstr(haystack, finalDelimiter);
+  int finalPos = fdStr - haystack;
+  char* result = (char*) malloc(finalPos * sizeof(char));
+  strncpy(result, &haystack[0], finalPos);
+  return result;
+}
 
 char*
 apply_vars_to(const char* url, const vKVE varPool, const char* del) {

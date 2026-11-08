@@ -10,6 +10,13 @@
 
 int main(void)
 {
+  char haystack[] = "${testefinal}";
+  char finalDelimiter[] = "}";
+  char* fdStr = strstr(haystack, finalDelimiter);
+  int finalPos = fdStr - haystack;
+  char* result = (char*) malloc(finalPos * sizeof(char));
+  strncpy(result, &haystack[0], finalPos);
+  printf("%s\n", result);
   char url[] = "https://testing/testingvar/${variable}/will continue printing?";
   char del[] = "${";
 
