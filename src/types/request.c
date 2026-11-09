@@ -7,22 +7,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./sizeI.h"
 
 #define LVAR_DELIMITER "${"
 #define EVAR_DELIMITER "#{"
 #define IVAR_DELIMITER "@{"
 #define FINAL_DELIMITER '}'
 
-
-// https://.../${var}/${v1}/${v2u238943498328}
-// var, v1 v2
-
-
-typedef struct {
-  int* items;
-  size_t size;
-} 
-sizedI;
 
 
 /**
@@ -33,10 +24,19 @@ static sizedI
 intercept_vars_to_str(const char* str, const char* del) {
   size_t haylen = strlen(str);
   size_t needlelen = strlen(del);
+  if (needlelen == 0 || del == NULL) {
+    return (sizedI){
+      NULL,
+      0
+    };
+  }
   int dCounter = 0;
   const char* s = strstr(str, del);
-  while(s != NULL) {
+  while(s) {
     s = strstr(s, del);
+    if (s !=  NULL) {
+      s += strlen(del);
+    }
     dCounter++;
   } 
   if (dCounter == 0) {
@@ -47,7 +47,7 @@ intercept_vars_to_str(const char* str, const char* del) {
   }
   int *result = malloc(dCounter * sizeof(int));
   int respos = 0;
-  for (int pos = 0; pos < haylen; ++pos) {
+  for (size_t pos = 0; pos < haylen; ++pos) {
     if (strncmp(&str[pos], del, needlelen) == 0) {
       result[respos] = pos;
       respos++;
@@ -61,34 +61,16 @@ intercept_vars_to_str(const char* str, const char* del) {
 
 static char*
 extract_var_key(const char* haystack, const char* finalDelimiter) {
-  char* fdStr = strstr(haystack, finalDelimiter);
-  int finalPos = fdStr - haystack;
-  char* result = (char*) malloc(finalPos * sizeof(char));
-  strncpy(result, &haystack[0], finalPos);
+  const char* fdStr = strstr(haystack, finalDelimiter);
+  int keysize = (fdStr - haystack);
+  char* result = (char*) malloc((keysize + 1) * sizeof(char));
+  memset(result, 0, keysize+1);
+  strncpy(result, haystack, keysize);
   return result;
 }
 
-char*
-apply_vars_to(const char* url, const vKVE varPool, const char* del) {
-  char* result = (char*) malloc(strlen(url) * sizeof(char));
-  memset(result, 0, strlen(url) * sizeof(char));
-  sizedI varsPos = intercept_vars_to_str(url, del);
-  if (varsPos.size == 0) {
-    strcpy(result, url); // no variables found in said url
-    return result;
-  }
-  int vCounter = 0;
-  int lastPos = 0;
-  for(int p = 0; p < varsPos.size; ++p) {
-    strncat(result, &url[lastPos], varsPos.items[p]);
-    lastPos = varsPos.items[p] + strlen(del);
-    
-  }
-  return result;
-}
-
-static KVE*
-get_var_by_key(const vKVE vars, char* key) {
+KVE*
+get_var_value_by_key(const vKVE vars, char* key) {
   for(int i = 0; i < vars.len; ++i) {
     if (strncmp(vars.items[i].key, key, strlen(key)) == 0) {
       return &vars.items[i];
@@ -97,6 +79,60 @@ get_var_by_key(const vKVE vars, char* key) {
   return NULL;
 }
 
+char*
+apply_vars_to(
+    const char* url, 
+    const vKVE varPool, 
+    const char* del, 
+    const char* finalDelimiter,
+    Variable_Error* varErr
+) {
+  sizedI varsPos = intercept_vars_to_str(url, del);
+  if (varsPos.size == 0) {
+    free_sized_i(&varsPos);
+    char* res = (char*) malloc((strlen(url)+1) * sizeof(char));
+    strcpy(res, url);
+    return res;
+  }
+  char* result = (char*) malloc(strlen(url) * sizeof(char));
+  memset(result, 0, strlen(url) * sizeof(char));
+  
+  int lastPos = 0;
+  for(size_t p = 0; p < varsPos.size; ++p) {
+    result = (char*) realloc(result, (strlen(result) + (varsPos.items[p] - lastPos)  + 1)* sizeof(char));
+    strncat(result, &url[lastPos], varsPos.items[p] - lastPos); // concats the url pos to the result until the next variable appears
+    const char* varToSearch = &url[varsPos.items[p] + strlen(del)]; 
+    char* varkey = extract_var_key(varToSearch, finalDelimiter);
+    KVE* value = get_var_value_by_key(varPool, varkey);
+    if (value == NULL) {
+      if (varkey != NULL) {
+        free(varkey);
+      }
+      free(result);
+      free_sized_i(&varsPos);
+      *varErr = REQ_VAR_NOT_FOUND_IN_BOUNDS;
+      return NULL;
+    }
+    // checks the actual value of the retrieved variable
+    // https://${varname}varvalue/rest/of/url
+    // {8} / {7} / 8 / 12
+    // with var total -> 8 + 7 + 12 = 27
+    // with var value total -> 8 + 8 + 12 = 28
+    // from with var to with biggest value = 27
+    result = (char*) realloc(result, (strlen(result) + strlen(value->value) + 1)* sizeof(char));
+    strcat(result, value->value); // adds up the variable value to the result string
+    lastPos = varsPos.items[p] + strlen(varkey) + strlen(del) + strlen(finalDelimiter); // the starting pos of the variable name, the name and the final delimiter
+    free(varkey);
+  }
+  *varErr = REQ_VAR_SUCCESS;
+  free_sized_i(&varsPos);
+  result = (char*) realloc(result, (strlen(result) + strlen(&url[lastPos]) + 1)* sizeof(char));
+  strcat(result, &url[lastPos]);
+  return result;
+}
+
+
+/**
 static char*
 header_to_str(const KVE header, const bool checkEnabled) {
   if (checkEnabled && !header.enabled) {
@@ -137,3 +173,4 @@ set_request(CURL* curl, Request req) {
 
   return REQ_SUCCESS;
 }
+*/

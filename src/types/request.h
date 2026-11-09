@@ -76,5 +76,21 @@ typedef enum {
   REQ_SUCCESS,
 } Request_Errors;
 
+
+typedef enum {
+  REQ_VAR_NOT_FOUND_IN_BOUNDS,
+  REQ_VAR_SUCCESS,
+} Variable_Error;
+
 Request_Errors
 set_request(CURL* curl, Request req);
+
+
+char*
+apply_vars_to(
+    const char* url, 
+    const vKVE varPool, 
+    const char* del, 
+    const char* finalDelimiter,
+    Variable_Error* varErr
+);

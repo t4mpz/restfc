@@ -22,9 +22,12 @@ check:
 	gcc -fsyntaxonly src/main.c
 
 debug:
-	gcc -fsanitize=address -g src/main.c $(STATICLIBS) $(LDLIBS) -o $(TGT)/dbg
+	gcc -fsanitize=address -g src/types/request.c src/types/kve.c src/types/sizeI.c src/main.c $(STATICLIBS) $(LDLIBS) -o $(TGT)/dbg
 make:
-	gcc $(GCC_FLAGS) $(STATICLIBS) src/main.c
+	gcc $(GCC_FLAGS) $(STATICLIBS) src/types/request.c  src/main.c -o test.e
+
+unsafemake:
+	gcc $(STATICLIBS) src/types/request.c  src/main.c -o test.e
 
 clear:
 	rm $(TGT)/*
